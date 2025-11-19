@@ -69,7 +69,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     return STATUS_SUCCESS;
 }
 
-void output_file(int fd, struct dbheader_t *header) {
+void output_file(int fd, struct dbheader_t *header, struct employee_t *employees) {
     if (fd < 0) {
         printf("Recieved invalid File Descriptor\n");
         return;
