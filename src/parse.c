@@ -69,10 +69,10 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     return STATUS_SUCCESS;
 }
 
-void output_file(int fd, struct dbheader_t *header, struct employee_t *employees) {
+int output_file(int fd, struct dbheader_t *header, struct employee_t *employees) {
     if (fd < 0) {
         printf("Recieved invalid File Descriptor\n");
-        return;
+        return STATUS_ERROR;
     }
 
     header->magic = htonl(header->magic);
@@ -83,4 +83,8 @@ void output_file(int fd, struct dbheader_t *header, struct employee_t *employees
     lseek(fd, 0, SEEK_SET);
 
     write(fd, header, sizeof(struct dbheader_t));
+
+    // TODO: Add Employee Writing
+
+    return STATUS_SUCCESS;
 }
