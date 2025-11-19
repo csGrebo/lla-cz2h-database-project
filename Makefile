@@ -17,7 +17,7 @@ OBJECTS := $(foreach ext, $(SRCEXTS), $(patsubst %.$(ext), $(OBJDIR)/%.o, $(filt
 
 CC := gcc
 
-override CFLAGS += -g
+override CFLAGS += -g -Wall -Werror
 override LDFLAGS +=
 INCFLAGS := $(INCDIRS:%=-I%)
 DEPFLAGS := -MMD -MP
