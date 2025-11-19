@@ -1,7 +1,7 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-#define HEADER_MAGIC 0x4c4c144
+#define HEADER_MAGIC 0x4c4c4144
 
 struct dbheader_t {
     unsigned int magic;
