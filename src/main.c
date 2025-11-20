@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include   <stdio.h>
 #include  <getopt.h>
+#include  <stdlib.h>
 
 #include  "common.h"
 #include    "file.h"
@@ -10,23 +11,33 @@ void print_usage(char *argv[]) {
     printf("Usage: %s -n -f <database file>\n", argv[0]);
     printf("\t -n  - create new database file\n");
     printf("\t -f  - (required) path to database file\n");
+    printf("\t -a  - Add a new employee via CSV Entry (name,address,hours)\n");
+    printf("\t -l  - List known employees\n");
 }
 
 int main(int argc, char *argv[]) {
     int c = 0;
     bool newfile = false;
     char *filepath = NULL;
+    char *addstr = NULL;
 
     int dbfd = -1;
     struct dbheader_t *header = NULL;
+    struct employee_t *employees = NULL;
 
-    while ((c = getopt(argc, argv, "nf:")) != -1) {
+    while ((c = getopt(argc, argv, "hnf:a:")) != -1) {
         switch (c) {
+            case 'h':
+                print_usage(argv);
+                return 0;
             case 'f':
                 filepath = optarg;
                 break;
             case 'n':
                 newfile = true;
+                break;
+            case 'a':
+                addstr = optarg;
                 break;
             default:
                 printf("Unknown option -%c\n", c);
@@ -46,7 +57,7 @@ int main(int argc, char *argv[]) {
             printf("Unable to create database file\n");
             return -1;
         }
-        if (create_db_header(dbfd, &header) == STATUS_ERROR) {
+        if (create_db_header(&header) == STATUS_ERROR) {
             printf("Failed to create database header\n");
             return -1;
         }
@@ -62,7 +73,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    output_file(dbfd, header);
+    if (read_employees(dbfd, header, &employees) != STATUS_SUCCESS) {
+        printf("Failed to read employees");
+        return -1;
+    }
+
+    if (addstr) {
+        add_employee(header, &employees, addstr);
+    }
+
+    output_file(dbfd, header, employees);
 
     return 0;
 }

@@ -56,8 +56,8 @@ else
 	@echo CXX: $@
 endif
 
-run: force
-	./$(EXECUTABLE) -f ./build/mynewdb.db -n
+run: $(EXECUTABLE)
+	./$(EXECUTABLE) -f ./build/mynewdb.db -n -a "Lil Timmy,225 W Cheshire St,38"
 	./$(EXECUTABLE) -f ./build/mynewdb.db
 
 clean:
