@@ -58,7 +58,8 @@ endif
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE) -f ./build/mynewdb.db -n -a "Lil Timmy,225 W Cheshire St,38"
-	./$(EXECUTABLE) -f ./build/mynewdb.db
+	./$(EXECUTABLE) -f ./build/mynewdb.db -l -u "Lil Timmy|225 W Cheshire St|50"
+	./$(EXECUTABLE) -f ./build/mynewdb.db -l -d "Lil Timmy"
 
 clean:
 	@rm -rf $(EXECUTABLE)

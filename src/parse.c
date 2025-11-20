@@ -102,9 +102,10 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
     }
 
     int realcount = header->count;
+    int realsize = sizeof(struct dbheader_t) + realcount*sizeof(struct employee_t);
 
     header->magic = htonl(header->magic);
-    header->filesize = htonl(sizeof(struct dbheader_t) + realcount*sizeof(struct employee_t));
+    header->filesize = htonl(realsize);
     header->count = htons(header->count);
     header->version = htons(header->version);
 
@@ -118,6 +119,7 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
         employees[i].hours = htonl(employees[i].hours);
         write(fd, &employees[i], sizeof(struct employee_t));
     }
+    ftruncate(fd, realsize);
 
     return STATUS_SUCCESS;
 }
@@ -146,5 +148,69 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     e[header->count-1].hours = atoi(hours);
     *employees = e;
 
+    return STATUS_SUCCESS;
+}
+
+void list_employees(struct dbheader_t *header, struct employee_t *employees) {
+    if (header->count == 0) printf("No employees to list\n");
+    int i = 0;
+    for (; i < header->count; i++) {
+        printf("Employee %d\n", i);
+        printf("\tName: %s\n", employees[i].name);
+        printf("\tAddress: %s\n", employees[i].address);
+        printf("\tHours: %d\n", employees[i].hours);
+        printf("\n");
+    }
+}
+
+int remove_employee(struct dbheader_t *header, struct employee_t **employees, char *delstr) {
+    struct employee_t *etmp = *employees;
+    int cnt = header->count;
+    int ncnt = 0;
+    int i = 0;
+    for (; i < cnt; i++) {
+        if (strcmp(etmp[i].name, delstr) != 0) {
+            ncnt++;
+        }
+    }
+    struct employee_t *nemp = calloc(ncnt, sizeof(struct employee_t));
+    if (nemp == NULL) {
+        return STATUS_ERROR;
+    }
+    int destidx = 0;
+    for (int k = 0; k < cnt; k++) {
+        if (strcmp(etmp[k].name, delstr) != 0) {
+            nemp[destidx] = etmp[k];
+            destidx++;
+        }
+    }
+    header->count = ncnt;
+    *employees = nemp;
+    free(etmp);
+    etmp = NULL;
+    return STATUS_SUCCESS;
+}
+
+int update_employee(struct dbheader_t *header, struct employee_t **employees, char *updstr) {
+    if (NULL == updstr) return STATUS_ERROR;
+    struct employee_t *etmp = *employees;
+
+    char *name = strtok(updstr, "|");
+    char *addr = strtok(NULL, "|");
+    char *hours = strtok(NULL, "|");
+
+    if (NULL == name) return STATUS_ERROR;
+    int i = 0;
+    for (; i < header->count; i++) {
+        if (strcmp(etmp[i].name, name) == 0) {
+            if (NULL != addr && strcmp("", addr) != 0) {
+                if (strlen(addr) <= 255) strncpy(etmp[i].address, addr, strlen(addr));
+            }
+            if (NULL != hours && strcmp("", hours) != 0) {
+                etmp[i].hours = atoi(hours);
+            }
+        }
+    }
+    *employees = etmp;
     return STATUS_SUCCESS;
 }

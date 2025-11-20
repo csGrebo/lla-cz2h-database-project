@@ -20,12 +20,15 @@ int main(int argc, char *argv[]) {
     bool newfile = false;
     char *filepath = NULL;
     char *addstr = NULL;
+    bool list = false;
+    char *delstr = NULL;
+    char *updstr = NULL;
 
     int dbfd = -1;
     struct dbheader_t *header = NULL;
     struct employee_t *employees = NULL;
 
-    while ((c = getopt(argc, argv, "hnf:a:")) != -1) {
+    while ((c = getopt(argc, argv, "hlnf:a:d:u:")) != -1) {
         switch (c) {
             case 'h':
                 print_usage(argv);
@@ -38,6 +41,15 @@ int main(int argc, char *argv[]) {
                 break;
             case 'a':
                 addstr = optarg;
+                break;
+            case 'l':
+                list = true;
+                break;
+            case 'd':
+                delstr = optarg;
+                break;
+            case 'u':
+                updstr = optarg;
                 break;
             default:
                 printf("Unknown option -%c\n", c);
@@ -80,6 +92,18 @@ int main(int argc, char *argv[]) {
 
     if (addstr) {
         add_employee(header, &employees, addstr);
+    }
+
+    if (delstr) {
+        remove_employee(header, &employees, delstr);
+    }
+
+    if (updstr) {
+        update_employee(header, &employees, updstr);
+    }
+
+    if (list) {
+        list_employees(header, employees);
     }
 
     output_file(dbfd, header, employees);
