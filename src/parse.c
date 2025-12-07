@@ -145,6 +145,9 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     }
     header->count++;
 
+    // printf("%ld\n", sizeof(struct employee_t));
+    // printf("%ld\n", sizeof(e[header->count-1].name));
+
     strncpy(e[header->count-1].name, name, sizeof(e[header->count-1].name)-1);
     strncpy(e[header->count-1].address, addr, sizeof(e[header->count-1].address)-1);
     e[header->count-1].hours = atoi(hours);

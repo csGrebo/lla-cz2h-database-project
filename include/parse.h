@@ -3,6 +3,9 @@
 
 #define HEADER_MAGIC 0x4c4c4144
 
+#define NAME_SIZE 256
+#define ADDR_SIZE 256
+
 struct dbheader_t {
     unsigned int magic;
     unsigned short version;
@@ -11,8 +14,8 @@ struct dbheader_t {
 };
 
 struct employee_t {
-    char name[256];
-    char address[256];
+    char name[NAME_SIZE];
+    char address[ADDR_SIZE];
     unsigned int hours;
 };
 
