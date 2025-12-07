@@ -217,7 +217,18 @@ int add_employee(struct dbheader_t *dbhdr, struct employee_t *employees, char *a
 #endif
 
 int list_employees(struct dbheader_t *header, struct employee_t *employees) {
-    // if (header->count == 0) printf("No employees to list\n");
+    if (header == NULL) {
+        printf("NULL Header\n");
+        return STATUS_ERROR;
+    }
+    if (employees == NULL) {
+        printf("NULL Employee List\n");
+        return STATUS_ERROR;
+    }
+    if (header->count == 0) {
+        printf("No employees to list\n");
+        return STATUS_ERROR;
+    }
     int i = 0;
     for (; i < header->count; i++) {
         printf("Employee %d\n", i);
