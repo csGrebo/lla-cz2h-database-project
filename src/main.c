@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (addstr) {
-#if 0
+#if 1
         add_employee(header, &employees, addstr);
 #else
         header->count++;

@@ -144,7 +144,7 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
 #endif
 }
 
-#if 0
+#if 1
 int add_employee(struct dbheader_t *header, struct employee_t **employees, char *addstr) {
     if (NULL == header) return STATUS_ERROR;
     if (NULL == employees) return STATUS_ERROR;
