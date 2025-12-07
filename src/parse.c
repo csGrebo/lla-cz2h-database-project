@@ -96,12 +96,13 @@ int read_employees(int fd, struct dbheader_t *header, struct employee_t **employ
 }
 
 int output_file(int fd, struct dbheader_t *header, struct employee_t *employees) {
+#if 1
     if (fd < 0) {
         printf("Recieved invalid File Descriptor\n");
         return STATUS_ERROR;
     }
+    printf("writing to file\n");
 
-#if 1
     int realcount = header->count;
     int realsize = sizeof(struct dbheader_t) + realcount*sizeof(struct employee_t);
 
@@ -117,6 +118,7 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
 
     int i = 0;
     for (; i < realcount; i++) {
+        printf("Attempting write: %d\n", i);
         employees[i].hours = htonl(employees[i].hours);
         write(fd, &employees[i], sizeof(struct employee_t));
     }
@@ -124,8 +126,14 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
 
     return STATUS_SUCCESS;
 #else
-    int realcount = header->count;
-    header->magic = htonl(header->magic);
+    if (fd < 0) {
+		printf("Got a bad FD from the user\n");
+		return STATUS_ERROR;
+	}
+
+	int realcount = header->count;
+
+	header->magic = htonl(header->magic);
 	header->filesize = htonl(sizeof(struct dbheader_t) + (sizeof(struct employee_t) * realcount));
 	header->count = htons(header->count);
 	header->version = htons(header->version);
@@ -152,41 +160,59 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     if (NULL == addstr) return STATUS_ERROR;
 
     printf("%s\n", addstr);
-
     char *name = strtok(addstr, ",");
-    char *addr = strtok(NULL, ",");
-    char *hours = strtok(NULL, ",");
 
-    printf("%s %s %s\n", name, addr, hours);
+	char *addr = strtok(NULL, ",");
 
+	char *hours = strtok(NULL, ",");
+
+	printf("%s %s %s\n", name, addr, hours);
+
+    printf("Current Size: %d\n", header->count);
     struct employee_t *e = *employees;
-    e = realloc(e, sizeof(struct employee_t)*header->count+1);
-    if (e == NULL) {
+    struct employee_t *tmp = realloc(e, (header->count+1)*(sizeof(struct employee_t)));
+    if (tmp == NULL) {
         return STATUS_ERROR;
+    } else {
+        e = tmp;
     }
     header->count++;
-
-    // printf("%ld\n", sizeof(struct employee_t));
-    // printf("%ld\n", sizeof(e[header->count-1].name));
-
-    strncpy(e[header->count-1].name, name, NAME_SIZE);
-    strncpy(e[header->count-1].address, addr, ADDR_SIZE);
-    e[header->count-1].hours = atoi(hours);
+    int idx = header->count - 1;
+    printf("Loading name for %d\n", idx);
+    strncpy(e[idx].name, name, sizeof(e[idx].name) - 1);
+    printf("Loading address for %d\n", idx);
+    strncpy(e[idx].address, addr, sizeof(e[idx].address) - 1);
+    printf("loading hours for %d\n", idx);
+    e[idx].hours = atoi(hours);
+    printf("updating pointer\n");
     *employees = e;
-
     return STATUS_SUCCESS;
 }
 #else
-int add_employee(struct dbheader_t *header, struct employee_t *employees, char *addstr) {
-    printf("%s\n", addstr);
-    char *name = strtok(addstr, ",");
-    char *addr = strtok(NULL, ",");
-    char *hours = strtok(NULL, ",");
-    printf("%s %s %s\n", name, addr, hours);
-    strncpy(employees[header->count-1].name, name, NAME_SIZE - 1);
-    strncpy(employees[header->count-1].address, addr, ADDR_SIZE - 1);
-    employees[header->count-1].hours = atoi(hours);
-    return STATUS_SUCCESS;
+int add_employee(struct dbheader_t *dbhdr, struct employee_t *employees, char *addstring) {
+	printf("%s\n", addstring);
+
+	char *name = strtok(addstring, ",");
+
+	char *addr = strtok(NULL, ",");
+
+	char *hours = strtok(NULL, ",");
+
+	printf("%s %s %s\n", name, addr, hours);
+
+
+    int idx = dbhdr->count-1;
+    printf("%d\n", idx);
+
+	printf("Loading name for %d\n", idx);
+	strncpy(employees[dbhdr->count-1].name, name, sizeof(employees[dbhdr->count-1].name));
+    printf("loading address for %d\n", idx);
+	strncpy(employees[dbhdr->count-1].address, addr, sizeof(employees[dbhdr->count-1].address));
+    printf("loading hours for %d\n", idx);
+	employees[dbhdr->count-1].hours = atoi(hours);
+	
+
+	return STATUS_SUCCESS;
 }
 #endif
 

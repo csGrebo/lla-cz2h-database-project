@@ -2,15 +2,18 @@
 make force
 echo
 echo "Checking DB Creation"
-valgrind --leak-check=full ./build/dbview -f build/db.db -n
+valgrind --leak-check=full --track-origins=yes ./build/dbview -f build/db.db -n
 echo
 echo "Adding John Smythe"
-valgrind --leak-check=full ./build/dbview -f build/db.db -a "John Smythe,18 Sheffield Drive,5"
-echo
-echo "Adding Steven Taylor"
-valgrind --leak-check=full ./build/dbview -f build/db.db -a "Steven Taylor,201 Redfield Lane,90"
+valgrind --leak-check=full --track-origins=yes ./build/dbview -f build/db.db -a "John Smythe,18 Sheffield Drive,5"
 echo
 echo "Outputting List"
-valgrind --leak-check=full ./build/dbview -f build/db.db -l
+valgrind --leak-check=full --track-origins=yes ./build/dbview -f build/db.db -l
+echo
+echo "Adding Steven Taylor"
+valgrind --leak-check=full --track-origins=yes ./build/dbview -f build/db.db -a "Steven Taylor,201 Redfield Lane,90"
+echo
+echo "Outputting List"
+valgrind --leak-check=full --track-origins=yes ./build/dbview -f build/db.db -l
 echo
 echo "Done"
