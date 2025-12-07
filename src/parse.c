@@ -101,6 +101,7 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
         return STATUS_ERROR;
     }
 
+#if 1
     int realcount = header->count;
     int realsize = sizeof(struct dbheader_t) + realcount*sizeof(struct employee_t);
 
@@ -122,8 +123,28 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
     ftruncate(fd, realsize);
 
     return STATUS_SUCCESS;
+#else
+    int realcount = header->count;
+    header->magic = htonl(header->magic);
+	header->filesize = htonl(sizeof(struct dbheader_t) + (sizeof(struct employee_t) * realcount));
+	header->count = htons(header->count);
+	header->version = htons(header->version);
+
+	lseek(fd, 0, SEEK_SET);
+
+	write(fd, header, sizeof(struct dbheader_t));
+
+	int i = 0;
+	for (; i < realcount; i++) {
+		employees[i].hours = htonl(employees[i].hours);
+		write(fd, &employees[i], sizeof(struct employee_t));
+	}
+
+	return STATUS_SUCCESS;
+#endif
 }
 
+#if 0
 int add_employee(struct dbheader_t *header, struct employee_t **employees, char *addstr) {
     if (NULL == header) return STATUS_ERROR;
     if (NULL == employees) return STATUS_ERROR;
@@ -148,13 +169,26 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     // printf("%ld\n", sizeof(struct employee_t));
     // printf("%ld\n", sizeof(e[header->count-1].name));
 
-    strncpy(e[header->count-1].name, name, sizeof(e[header->count-1].name)-1);
-    strncpy(e[header->count-1].address, addr, sizeof(e[header->count-1].address)-1);
+    strncpy(e[header->count-1].name, name, NAME_SIZE);
+    strncpy(e[header->count-1].address, addr, ADDR_SIZE);
     e[header->count-1].hours = atoi(hours);
     *employees = e;
 
     return STATUS_SUCCESS;
 }
+#else
+int add_employee(struct dbheader_t *header, struct employee_t *employees, char *addstr) {
+    printf("%s\n", addstr);
+    char *name = strtok(addstr, ",");
+    char *addr = strtok(NULL, ",");
+    char *hours = strtok(NULL, ",");
+    printf("%s %s %s\n", name, addr, hours);
+    strncpy(employees[header->count-1].name, name, NAME_SIZE - 1);
+    strncpy(employees[header->count-1].address, addr, ADDR_SIZE - 1);
+    employees[header->count-1].hours = atoi(hours);
+    return STATUS_SUCCESS;
+}
+#endif
 
 int list_employees(struct dbheader_t *header, struct employee_t *employees) {
     // if (header->count == 0) printf("No employees to list\n");

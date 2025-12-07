@@ -91,7 +91,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (addstr) {
+#if 0
         add_employee(header, &employees, addstr);
+#else
+        header->count++;
+        employees = realloc(employees, header->count*(sizeof(struct employee_t)));
+        add_employee(header, employees, addstr);
+#endif
     }
 
     if (delstr) {
