@@ -153,7 +153,7 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     return STATUS_SUCCESS;
 }
 
-void list_employees(struct dbheader_t *header, struct employee_t *employees) {
+int list_employees(struct dbheader_t *header, struct employee_t *employees) {
     // if (header->count == 0) printf("No employees to list\n");
     int i = 0;
     for (; i < header->count; i++) {
@@ -163,6 +163,7 @@ void list_employees(struct dbheader_t *header, struct employee_t *employees) {
         printf("\tHours: %d\n", employees[i].hours);
         printf("\n");
     }
+    return STATUS_SUCCESS;
 }
 
 int remove_employee(struct dbheader_t *header, struct employee_t **employees, char *delstr) {
