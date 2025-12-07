@@ -130,9 +130,13 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
     if (NULL == *employees) return STATUS_ERROR;
     if (NULL == addstr) return STATUS_ERROR;
 
+    printf("%s\n", addstr);
+
     char *name = strtok(addstr, ",");
     char *addr = strtok(NULL, ",");
     char *hours = strtok(NULL, ",");
+
+    printf("%s %s %s\n", name, addr, hours);
 
     struct employee_t *e = *employees;
     e = realloc(e, sizeof(struct employee_t)*header->count+1);
@@ -140,8 +144,6 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees, char 
         return STATUS_ERROR;
     }
     header->count++;
-
-    printf("%s %s %s\n", name, addr, hours);
 
     strncpy(e[header->count-1].name, name, sizeof(e[header->count-1].name)-1);
     strncpy(e[header->count-1].address, addr, sizeof(e[header->count-1].address)-1);
